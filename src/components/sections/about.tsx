@@ -6,7 +6,7 @@ import { GraduationCap } from "lucide-react";
 import { Reveal, Stagger, StaggerItem } from "@/components/ui/reveal";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
-import { awards, education, profile, story } from "@/content/profile";
+import { awards, education, profile, story, strengths } from "@/content/profile";
 import { useFinePointer, useReducedMotion } from "@/lib/hooks";
 import portrait from "@/assets/portrait.webp";
 
@@ -85,6 +85,19 @@ export function About() {
                 </StaggerItem>
               ))}
             </Stagger>
+
+            <Reveal className="mt-16">
+              <h3 className="label-mono mb-2 text-mute">What I am best at</h3>
+              <ul className="grid gap-x-10 md:grid-cols-2">
+                {strengths.map((st, i) => (
+                  <li key={st.title} className="border-b border-line py-6">
+                    <span className="font-mono text-[0.6875rem] text-accent">{String(i + 1).padStart(2, "0")}</span>
+                    <p className="font-display mt-3 text-xl leading-tight [--wdth:86] [--wght:580] md:text-2xl">{st.title}</p>
+                    <p className="mt-3 text-[0.9375rem] leading-relaxed text-soft">{st.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
 
             <div className="mt-16 grid gap-3 md:grid-cols-2 md:gap-4">
               {education.map((e, i) => (

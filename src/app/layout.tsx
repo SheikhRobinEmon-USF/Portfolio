@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Assistant } from "@/components/assistant/assistant";
 import { Scene } from "@/components/canvas/scene";
+import { CaseDrawer } from "@/components/sections/case-drawer";
 import { CommandPalette } from "@/components/command/command-palette";
 import { Footer } from "@/components/layout/footer";
 import { Nav } from "@/components/layout/nav";
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Nav />
           <main id="main">{children}</main>
           <Footer />
+          <CaseDrawer />
           <Assistant />
           <CommandPalette />
         </AppProvider>

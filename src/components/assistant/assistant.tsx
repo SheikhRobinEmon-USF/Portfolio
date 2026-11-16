@@ -127,11 +127,12 @@ function AssistantMessage({
   const a = message.answer;
   const { shown, streaming } = useStream(a.text, !message.done, onDone);
   const router = useRouter();
-  const { scrollTo } = useApp();
+  const { scrollTo, openCase } = useApp();
   const pathname = usePathname();
 
   const goSource = (href: string) => {
-    if (href.startsWith("/#") && pathname === "/") scrollTo(href.slice(1));
+    if (href.startsWith("case:")) openCase(href.slice(5));
+    else if (href.startsWith("/#") && pathname === "/") scrollTo(href.slice(1));
     else router.push(href);
   };
 
@@ -207,7 +208,7 @@ function AssistantMessage({
 }
 
 export function Assistant() {
-  const { assistantOpen, setAssistantOpen, pendingQuestion, lens, setLens, toggleTheme, scrollTo } = useApp();
+  const { assistantOpen, setAssistantOpen, pendingQuestion, lens, setLens, toggleTheme, scrollTo, openCase, caseId } = useApp();
   const pathname = usePathname();
   const router = useRouter();
   const mounted = useMounted();
@@ -233,6 +234,9 @@ export function Assistant() {
         break;
       case "route":
         router.push(a.href);
+        break;
+      case "case":
+        openCase(a.id);
         break;
       case "theme":
         toggleTheme();
@@ -300,13 +304,14 @@ export function Assistant() {
   useEffect(() => {
     if (!assistantOpen) return;
     const id = setTimeout(() => field.current?.focus({ preventScroll: true }), 250);
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setAssistantOpen(false);
+    // While a case study drawer is open, Escape belongs to the drawer.
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && !caseId && setAssistantOpen(false);
     window.addEventListener("keydown", onKey);
     return () => {
       clearTimeout(id);
       window.removeEventListener("keydown", onKey);
     };
-  }, [assistantOpen, setAssistantOpen]);
+  }, [assistantOpen, setAssistantOpen, caseId]);
 
   /* One gentle, dismissible nudge per session. */
   useEffect(() => {

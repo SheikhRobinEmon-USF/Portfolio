@@ -28,6 +28,8 @@ own content.
   assistant. `⌘J` / `Ctrl J` toggles the assistant.
 - **Case studies** for Hospital Ops Copilot and ModelROI AI, with shared-element view transitions
   from the home page.
+- **Case study gallery.** 22 pieces of shipped work, filterable by category, each opening a
+  slide-over with the overview, what was done, the impact and the tools. Arrow keys step through.
 - **Dark-mode-first** with a full light theme (circular reveal on switch), `prefers-reduced-motion`
   support throughout, keyboard navigation, and a skip link.
 
@@ -75,7 +77,7 @@ generated from these files, so a change in one place updates everything.
 |---|---|
 | `profile.ts` | Name, links, summaries per lens, headline metrics, education, awards, story |
 | `experience.ts` | Roles and bullets, each tagged with the lenses it matters to |
-| `projects.ts` | Case studies, Clearline, and the shipped-products grid |
+| `projects.ts` | Open-source case studies, Clearline, and the case study gallery |
 | `skills.ts` | Capabilities and technologies |
 
 To add a case study, add an entry to `caseStudies` in `projects.ts` and put its screenshots in
@@ -90,7 +92,7 @@ src/
   content/             all site copy as typed data
   components/
     canvas/            WebGL particle field and its shapes
-    sections/          hero, impact, work, shipped, experience, skills, about, contact
+    sections/          hero, impact, work, gallery and its drawer, experience, skills, about, contact
     assistant/         assistant panel
     command/           command palette
     layout/            nav, footer, scroll progress

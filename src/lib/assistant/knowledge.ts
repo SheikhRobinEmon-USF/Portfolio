@@ -175,10 +175,10 @@ export function buildKnowledge(): Doc[] {
       id: `shipped-${s.id}`,
       kind: "project",
       title: `${s.name} (${s.org})`,
-      text: `${s.metric.value} ${s.metric.label}${extra ? `, ${extra}` : ""}. ${s.text}`,
-      href: `/#shipped-${s.id}`,
+      text: `${s.metric.value} ${s.metric.label}${extra ? `, ${extra}` : ""}. ${s.text} ${s.did.join(" ")} ${s.impact.join(" ")}`,
+      href: `case:${s.id}`,
       source: s.name,
-      tags: `product shipped ${s.category.join(" ")} ${s.tools.join(" ")}`,
+      tags: `product shipped case study ${s.headline} ${s.role} ${s.category.join(" ")} ${s.domain.join(" ")} ${s.tools.join(" ")}`,
     });
   }
 

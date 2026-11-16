@@ -27,6 +27,10 @@ type AppState = {
   setAssistantOpen: (open: boolean) => void;
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean) => void;
+  /** The case study shown in the detail drawer, if any. */
+  caseId: string | null;
+  openCase: (id: string) => void;
+  closeCase: () => void;
   /** Open the assistant and ask it something. */
   ask: (question: string) => void;
   pendingQuestion: { id: number; text: string } | null;
@@ -67,6 +71,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [pendingQuestion, setPendingQuestion] = useState<AppState["pendingQuestion"]>(null);
+  const [caseId, setCaseId] = useState<string | null>(null);
+  const openCase = useCallback((id: string) => {
+    setPaletteOpen(false);
+    setCaseId(id);
+  }, []);
+  const closeCase = useCallback(() => setCaseId(null), []);
   const lenisRef = useRef<Lenis | null>(null);
 
   /* Smooth scrolling */
@@ -110,9 +120,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const lenis = lenisRef.current;
     if (!lenis) return;
-    if (paletteOpen) lenis.stop();
+    if (paletteOpen || caseId) lenis.stop();
     else lenis.start();
-  }, [paletteOpen]);
+  }, [paletteOpen, caseId]);
 
   const scrollTo = useCallback<AppState["scrollTo"]>((target, opts) => {
     const offset = opts?.offset ?? -80;
@@ -207,11 +217,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setAssistantOpen,
       paletteOpen,
       setPaletteOpen,
+      caseId,
+      openCase,
+      closeCase,
       ask,
       pendingQuestion,
       scrollTo,
     }),
-    [theme, toggleTheme, lens, setLens, assistantOpen, paletteOpen, ask, pendingQuestion, scrollTo],
+    [theme, toggleTheme, lens, setLens, assistantOpen, paletteOpen, caseId, openCase, closeCase, ask, pendingQuestion, scrollTo],
   );
 
   return <AppContext value={value}>{children}</AppContext>;

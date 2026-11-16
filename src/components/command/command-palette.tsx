@@ -31,7 +31,7 @@ const sections = [
   { id: "top", label: "Home", icon: <Home size={16} /> },
   { id: "impact", label: "Impact", icon: <Zap size={16} /> },
   { id: "work", label: "Selected work", icon: <Layers size={16} /> },
-  { id: "shipped", label: "Shipped products", icon: <Layers size={16} /> },
+  { id: "shipped", label: "Case study gallery", icon: <Layers size={16} /> },
   { id: "experience", label: "Experience", icon: <Briefcase size={16} /> },
   { id: "skills", label: "Toolkit", icon: <Zap size={16} /> },
   { id: "about", label: "About", icon: <User size={16} /> },
@@ -71,7 +71,7 @@ const groupClass =
   "[&_[cmdk-group-heading]]:label-mono [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:pb-2 [&_[cmdk-group-heading]]:pt-4 [&_[cmdk-group-heading]]:text-mute";
 
 export function CommandPalette() {
-  const { paletteOpen, setPaletteOpen, toggleTheme, theme, setLens, ask, scrollTo } = useApp();
+  const { paletteOpen, setPaletteOpen, toggleTheme, theme, setLens, ask, scrollTo, openCase } = useApp();
   const router = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState("");
@@ -113,6 +113,12 @@ export function CommandPalette() {
             <Command
               label="Command palette"
               loop
+              // Every typed word must appear in the item; cmdk's default fuzzy match is too loose here.
+              filter={(value, search) => {
+                const v = value.toLowerCase();
+                if (v.startsWith("ask ")) return 0.1;
+                return search.toLowerCase().split(/\s+/).filter(Boolean).every((t) => v.includes(t)) ? 1 : 0;
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Escape") close();
               }}
@@ -131,14 +137,6 @@ export function CommandPalette() {
 
               <Command.List className="max-h-[min(26rem,55vh)] overflow-y-auto overscroll-contain p-2">
                 <Command.Empty className="px-3 py-10 text-center text-sm text-mute">Nothing matches that.</Command.Empty>
-
-                {query.trim().length > 2 && (
-                  <Command.Group heading="Assistant" className={groupClass} forceMount>
-                    <Item value={`ask ${query}`} icon={<Sparkles size={16} />} onSelect={run(() => ask(query))} hint="AI">
-                      Ask: <span className="text-ink">{query}</span>
-                    </Item>
-                  </Command.Group>
-                )}
 
                 <Command.Group heading="Go to" className={groupClass}>
                   {sections.map((s) => (
@@ -162,16 +160,13 @@ export function CommandPalette() {
                   ))}
                 </Command.Group>
 
-                <Command.Group heading="Products" className={groupClass}>
+                <Command.Group heading="Case gallery" className={groupClass}>
                   {shipped.map((s) => (
                     <Item
                       key={s.id}
-                      value={`product ${s.name} ${s.org} ${s.tools.join(" ")}`}
+                      value={`gallery ${s.name} ${s.headline} ${s.org} ${s.tools.join(" ")}`}
                       icon={<Layers size={16} />}
-                      onSelect={run(() => {
-                        if (pathname === "/") scrollTo(`#shipped-${s.id}`, { offset: -110 });
-                        else router.push(`/#shipped-${s.id}`);
-                      })}
+                      onSelect={run(() => openCase(s.id))}
                       hint={s.metric.value}
                     >
                       {s.name}
@@ -221,6 +216,13 @@ export function CommandPalette() {
                     Ask the assistant for a summary
                   </Item>
                 </Command.Group>
+                {query.trim().length > 2 && (
+                  <Command.Group heading="Assistant" className={groupClass} forceMount>
+                    <Item value={`ask ${query}`} icon={<Sparkles size={16} />} onSelect={run(() => ask(query))} hint="AI">
+                      Ask: <span className="text-ink">{query}</span>
+                    </Item>
+                  </Command.Group>
+                )}
               </Command.List>
 
               <div className="flex items-center justify-between border-t border-line px-5 py-3 font-mono text-[0.6875rem] text-mute">

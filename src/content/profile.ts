@@ -36,6 +36,8 @@ export const profile = {
     "SaaS",
     "E-commerce",
     "IoT",
+    "AR/VR",
+    "Gaming",
     "Telecom",
     "Mobile Financial Services",
     "OTT",
@@ -174,4 +176,24 @@ export const story = [
   "I started in AdTech. At AdPlay and VU Mobile I led CNN ad-verification work that took detection accuracy from 48% to 98% and built predictive bidding that cut ad costs by 34%.",
   "At Riseup Labs I spent three years as a product manager shipping for teachers in Bangladesh, U-Reporters in Burkina Faso and families cooking on pay-as-you-go stoves. Teachers Portal grew past 1.3M monthly active users, and I helped take Retouching Labs from a solo founding stage to a 90+ person organization.",
   "Now I am at the University of South Florida for an MS in AI and Business Analytics, researching hospital resource and cost optimization with Tampa General Hospital, and building open-source AI tools that keep the model out of the arithmetic.",
+];
+
+/** From the Notion portfolio draft. */
+export const strengths = [
+  {
+    title: "Product strategy and roadmap execution",
+    text: "Translating complex technical requirements into crisp PRDs, user stories and high-velocity sprint plans.",
+  },
+  {
+    title: "AI/ML solution delivery",
+    text: "Shipping end-to-end AI capabilities, including GenAI workflow automation, recommendation engines, computer vision (CNNs), predictive ad models and localized speech AI.",
+  },
+  {
+    title: "Cross-functional leadership",
+    text: "Aligning engineering squads, UX researchers and executive stakeholders to accelerate product velocity and GTM execution.",
+  },
+  {
+    title: "Data-driven discovery",
+    text: "Combining Python, SQL and telemetry analytics with A/B testing and customer research to reduce churn and grow lifetime value.",
+  },
 ];

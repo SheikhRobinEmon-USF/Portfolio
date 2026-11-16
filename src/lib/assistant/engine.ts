@@ -7,6 +7,7 @@ import { buildKnowledge, skillTerms, type Doc } from "./knowledge";
 export type Action =
   | { type: "scroll"; target: string; label: string }
   | { type: "route"; href: string; label: string }
+  | { type: "case"; id: string; label: string }
   | { type: "theme"; label: string }
   | { type: "lens"; lens: Lens; label: string }
   | { type: "copy-email"; label: string }
@@ -221,7 +222,7 @@ const sections: { re: RegExp; target: string; label: string }[] = [
   { re: /\b(about|story|bio|education|awards?|photo)\b/, target: "#about", label: "About" },
   { re: /\b(contact|email|hire|reach)\b/, target: "#contact", label: "Contact" },
   { re: /\b(impact|numbers|metrics|results)\b/, target: "#impact", label: "Impact" },
-  { re: /\b(shipped|products|archive)\b/, target: "#shipped", label: "Shipped products" },
+  { re: /\b(shipped|products|archive|gallery|case studies)\b/, target: "#shipped", label: "Case study gallery" },
   { re: /\b(work|projects?|portfolio|case stud(y|ies))\b/, target: "#work", label: "Selected work" },
   { re: /\b(top|home|start|beginning)\b/, target: "#top", label: "the top" },
 ];
@@ -289,8 +290,8 @@ export function answer(question: string, lens: Lens = "pm"): Answer {
       return {
         ...base,
         text: `Here is **${sp.name}**: ${sp.metric.value} ${sp.metric.label}. ${sp.text}`,
-        run: { type: "scroll", target: `#shipped-${sp.id}`, label: `Scrolled to ${sp.name}` },
-        sources: [{ label: sp.name, href: `/#shipped-${sp.id}` }],
+        run: { type: "case", id: sp.id, label: `Opened ${sp.name}` },
+        sources: [{ label: sp.name, href: `case:${sp.id}` }],
       };
     }
     const sec = sections.find((s) => s.re.test(l));
@@ -489,7 +490,15 @@ export function answer(question: string, lens: Lens = "pm"): Answer {
     { re: /\b(adplay|ad play|vu mobile)\b/, id: "adplay" },
     { re: /\b(usf|south florida|tampa general|tgh|teaching assistant|hospital research|research(ing)?)\b/, id: "usf" },
   ];
-  const company = companies.find((c) => c.re.test(l));
+  // Only a general "what did he do there?" gets the role summary. A question with
+  // its own topic ("KPI reporting at Arena") goes to retrieval for the specific work.
+  const generic = new Set(
+    "arena ptc inc riseup rise lab adplay ad play vu mobile usf south florida university tampa general tgh work role job experience intern internship time research hospital teach assistant graduate summer product manager management senior executive built build accomplish achieve company there".split(
+      " ",
+    ),
+  );
+  const hasTopic = tokenize(q).some((t) => !generic.has(t));
+  const company = hasTopic ? undefined : companies.find((c) => c.re.test(l));
   if (company && !/\b(degree|gpa|stud(y|ied|ying)|graduat|masters?|bachelors?|copilot)\b/.test(l) && !findSkill(q)) {
     const role = experience.find((r) => r.id === company.id)!;
     const top = bulletsFor(role, lens).slice(0, 4);
@@ -565,7 +574,11 @@ export function answer(question: string, lens: Lens = "pm"): Answer {
     const group = [...technologies, ...capabilities].find((g) => g.items.some((i) => i.toLowerCase() === skill.toLowerCase()));
     if (hits.length) {
       const top = hits.filter((h) => re.test(`${h.title} ${h.text}`)).slice(0, 4);
-      const list = (top.length ? top : hits.slice(0, 3)).map((h) => `- **${h.title}.** ${h.text}`);
+      const compact = (h: Doc) => {
+        const item = h.href.startsWith("case:") ? shipped.find((x) => x.id === h.href.slice(5)) : undefined;
+        return item ? `${item.text} ${item.impact.join(" ")}` : h.text;
+      };
+      const list = (top.length ? top : hits.slice(0, 3)).map((h) => `- **${h.title}.** ${compact(h)}`);
       return {
         ...base,
         text: `${/^(has|does|did|is|can|do)\b/.test(l) ? "Yes. " : ""}Here is where **${skill}** shows up in Robin's work:\n\n${list.join("\n")}`,
@@ -600,13 +613,22 @@ export function answer(question: string, lens: Lens = "pm"): Answer {
 
   const lead = strong[0].doc;
   const rest = strong.slice(1).map((r) => r.doc);
+  const body = (d: Doc) => {
+    if (!d.href.startsWith("case:")) return d.text;
+    const item = shipped.find((x) => x.id === d.href.slice(5));
+    return item ? `${item.text} ${item.impact.join(" ")}` : d.text;
+  };
+  const leadItem = lead.href.startsWith("case:") ? shipped.find((x) => x.id === lead.href.slice(5)) : undefined;
   const text =
-    `**${lead.title}.** ${lead.text}` +
-    (rest.length ? `\n\nRelated:\n\n${rest.map((d) => `- **${d.title}.** ${d.text}`).join("\n")}` : "");
+    (leadItem
+      ? `**${lead.title}.** ${leadItem.text}\n\n${leadItem.did.map((x) => `- ${x}`).join("\n")}\n\n**Impact.** ${leadItem.impact.join(" ")}`
+      : `**${lead.title}.** ${lead.text}`) +
+    (rest.length ? `\n\nRelated:\n\n${rest.map((d) => `- **${d.title}.** ${body(d)}`).join("\n")}` : "");
 
   const actions: Action[] = [];
   const first = strong[0].doc;
-  if (first.href.startsWith("/work/")) actions.push({ type: "route", href: first.href, label: "Open the case study" });
+  if (first.href.startsWith("case:")) actions.push({ type: "case", id: first.href.slice(5), label: "Open the case study" });
+  else if (first.href.startsWith("/work/")) actions.push({ type: "route", href: first.href, label: "Open the case study" });
   else if (first.href.startsWith("/#")) actions.push({ type: "scroll", target: first.href.slice(1), label: `Go to ${first.source}` });
 
   return { ...base, text, sources: uniqueSources(strong.map((s) => s.doc)), actions };
