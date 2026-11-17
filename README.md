@@ -1,125 +1,82 @@
 # Sheikh Robin Emon · Portfolio
 
+**Live site: https://sheikhrobinemon-usf.github.io/Portfolio/**
+
 Personal portfolio for Sheikh Robin Emon, AI Product Manager and Forward Deployed AI Engineer.
-A statically exported Next.js site with a scroll-driven WebGL backdrop, variable-font kinetic
-type, a command palette, and an assistant that answers questions about the work from the site's
-own content.
 
-![Portfolio home page in dark mode](docs/preview-dark.webp)
+Plain HTML, CSS and JavaScript. No framework, no npm, no build step, no dependencies. Fonts and
+images are in the repository, so the site works offline.
 
-| Light theme | Portfolio assistant |
-|---|---|
-| ![Light theme](docs/preview-light.webp) | ![Assistant answering with sources](docs/preview-assistant.webp) |
+![Portfolio home page](assets/img/og.png)
+
+## View it
+
+- **Online:** https://sheikhrobinemon-usf.github.io/Portfolio/
+- **On your computer:** download or clone the repository and double-click `index.html`.
 
 ## What is in it
 
-- **Scrollytelling backdrop.** One WebGL particle field (Three.js through React Three Fiber) that
-  morphs between five shapes as you move through the page: sphere, wave, knot, helix, halo.
-- **Kinetic type.** The hero and contact headlines use Bricolage Grotesque's weight and width axes.
-  Characters thicken and widen near the cursor; on touch devices a slow wave rolls through instead.
-- **Lens switch.** "Read this site as" AI Product Manager, Forward Deployed AI Engineer or Business
-  Analyst. Summaries, experience bullets, skills and products reorder for that reader.
-- **Portfolio assistant.** A retrieval engine that runs in the browser: a BM25 index over the same
-  content files that render the site, plus an intent router. It cites its sources, can scroll to
-  sections, open case studies, switch theme and change the lens, and takes voice input where the
-  browser supports it. No API keys, no network calls, and it declines questions the site cannot
-  answer.
-- **Command palette.** `⌘K` / `Ctrl K` to jump anywhere, run actions, or hand a question to the
-  assistant. `⌘J` / `Ctrl J` toggles the assistant.
-- **Case studies** for Hospital Ops Copilot and ModelROI AI, with shared-element view transitions
-  from the home page.
-- **Case study gallery.** 22 pieces of shipped work, filterable by category, each opening a
-  slide-over with the overview, what was done, the impact and the tools. Arrow keys step through.
-- **Dark-mode-first** with a full light theme (circular reveal on switch), `prefers-reduced-motion`
-  support throughout, keyboard navigation, and a skip link.
-
-## Stack
-
-| Layer | Choice |
-|---|---|
-| Framework | Next.js 16 (App Router, static export), React 19 with the React Compiler |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4, design tokens as CSS variables |
-| Motion | Motion, Lenis smooth scrolling, React `<ViewTransition>` |
-| 3D | Three.js, React Three Fiber, custom GLSL |
-| UI | cmdk, Lucide icons, Fontsource variable fonts |
-| Component workshop | Storybook 10 |
-
-## Run it
-
-Requires Node.js 20.9 or newer.
-
-```bash
-npm install
-```
-
-```bash
-npm run dev
-```
-
-Open http://localhost:3000.
-
-| Command | What it does |
-|---|---|
-| `npm run dev` | Development server |
-| `npm run build` | Static export to `out/` |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Route type generation and `tsc` |
-| `npm run storybook` | Storybook on port 6006 |
-| `npm run build-storybook` | Static Storybook build |
+- **Scroll-driven 3D backdrop.** A WebGL particle field, written directly against the browser's
+  WebGL API, that morphs between five shapes as you scroll: sphere, wave, knot, helix and halo.
+- **Kinetic type.** The hero and contact headlines use Bricolage Grotesque's weight and width
+  axes. Letters thicken and widen near the cursor; on touch screens a slow wave rolls through.
+- **"Read this site as."** Switch between AI Product Manager, Forward Deployed AI Engineer and
+  Business Analyst. Summaries, metrics, experience bullets, skills and case studies reorder for
+  that reader.
+- **Portfolio assistant.** Ask questions about the work. It searches this site's own content
+  (BM25 plus an intent router), cites its sources, and can scroll to sections, open case studies,
+  switch the theme and change the lens. It runs in the browser: no API keys, no network calls.
+  It also takes voice input where the browser supports it.
+- **Command palette.** Press `⌘K` / `Ctrl K` to jump anywhere or hand a question to the assistant.
+  `⌘J` / `Ctrl J` opens the assistant.
+- **Case study gallery.** 22 pieces of shipped work, filterable by category. Each card opens a
+  drawer with the overview, what was done, the impact and the tools; arrow keys step through.
+- **Case studies** for Hospital Ops Copilot and ModelROI AI, with screenshots and eval tables.
+- **Dark and light themes**, with a circular reveal when you switch. Respects
+  `prefers-reduced-motion`, works with a keyboard, and lays out for phones.
 
 ## Edit the content
 
-All copy lives in `src/content`. The page, the command palette and the assistant's index are all
-generated from these files, so a change in one place updates everything.
+Every word on the site lives in **`assets/js/data.js`**. Edit it, save, and refresh the browser.
 
-| File | Holds |
+| Section of `data.js` | Holds |
 |---|---|
-| `profile.ts` | Name, links, summaries per lens, headline metrics, education, awards, story |
-| `experience.ts` | Roles and bullets, each tagged with the lenses it matters to |
-| `projects.ts` | Open-source case studies, Clearline, and the case study gallery |
-| `skills.ts` | Capabilities and technologies |
+| `profile` | Name, links, location, summaries for each lens, organizations |
+| `metrics` | The headline numbers in the Impact section |
+| `experience` | Roles and bullets; each bullet lists the lenses it matters to |
+| `caseStudies` | Hospital Ops Copilot and ModelROI AI pages |
+| `shipped` | The 22-item case study gallery |
+| `technologies`, `capabilities` | The Toolkit section |
+| `education`, `awards`, `story`, `strengths` | The About section |
 
-To add a case study, add an entry to `caseStudies` in `projects.ts` and put its screenshots in
-`src/assets/projects`. The route `/work/<slug>` is generated at build time.
+Images go in `assets/img/`. Screenshots for the case studies are in `assets/img/projects/`.
 
-## Project structure
+## Files
 
 ```
-src/
-  app/                 routes, layout, global styles, sitemap and robots
-  assets/              portrait and project screenshots
-  content/             all site copy as typed data
-  components/
-    canvas/            WebGL particle field and its shapes
-    sections/          hero, impact, work, gallery and its drawer, experience, skills, about, contact
-    assistant/         assistant panel
-    command/           command palette
-    layout/            nav, footer, scroll progress
-    providers/         theme, lens, smooth scroll and overlay state
-    ui/                buttons, chips, counters, kinetic type and other primitives
-  lib/
-    assistant/         knowledge builder and retrieval engine
-.storybook/            Storybook config
-.github/workflows/     CI and GitHub Pages deployment
+index.html                     home page
+work/hospital-ops-copilot.html case study
+work/modelroi-ai.html          case study
+404.html                       not-found page for GitHub Pages
+assets/css/styles.css          all styles and design tokens
+assets/js/data.js              all content
+assets/js/main.js              rendering, lens switch, theme, scroll effects, drawer, palette
+assets/js/field.js             WebGL particle field
+assets/js/engine.js            assistant answer engine (search and intent routing)
+assets/js/assistant.js         assistant chat panel
+assets/fonts/                  Bricolage Grotesque, Geist, Geist Mono, Instrument Serif
+assets/img/                    portrait, project screenshots, icon, social preview
 ```
 
-## Deploy
+## Publish changes
 
-The site is a static export, so any static host works.
+The site is served by GitHub Pages from the `main` branch. Commit and push to `main`, and the
+live site updates within a minute or two.
 
-**GitHub Pages.** In the repository, open Settings, then Pages, and set the source to
-"GitHub Actions". Every push to `main` then runs `.github/workflows/deploy.yml`, which builds with
-the right base path and publishes `out/`.
+## Credits
 
-**Vercel, Netlify or Cloudflare Pages.** Import the repository. The build command is
-`npm run build` and the output directory is `out`. No environment variables are needed at the
-domain root.
-
-| Variable | Purpose | Default |
-|---|---|---|
-| `NEXT_PUBLIC_BASE_PATH` | Sub-path the site is served from, for example `/Portfolio` | empty |
-| `NEXT_PUBLIC_SITE_URL` | Canonical URL, used for the sitemap and social cards | GitHub Pages URL |
+Fonts are under the SIL Open Font License: Bricolage Grotesque (Mathieu Triay), Geist and
+Geist Mono (Vercel), Instrument Serif (Instrument). Icons are paths from Lucide (ISC license).
 
 ## License
 
