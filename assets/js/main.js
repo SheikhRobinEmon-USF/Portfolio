@@ -467,7 +467,8 @@
 
     var grid = $(".bento", section);
     function card(m, i) {
-      var big = m.id === "mau", wide = m.id === "accuracy";
+      // 1 large (2x2) + 4 wide (2x1) + 4 single cards fill four rows of four with no gaps.
+      var big = m.id === "mau", wide = ["accuracy", "scribe", "hospitals", "records"].indexOf(m.id) !== -1;
       var extra = "";
       if (big) {
         extra =
@@ -477,7 +478,7 @@
           '<path class="curve__fill" d="M0 132 C 70 128, 110 118, 160 100 S 250 62, 300 34 S 370 8, 400 4 L 400 140 L 0 140 Z" fill="url(#cf)"/>' +
           '<path class="curve__line" pathLength="1" d="M0 132 C 70 128, 110 118, 160 100 S 250 62, 300 34 S 370 8, 400 4" fill="none" stroke="url(#cs)" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
       }
-      if (wide) {
+      if (m.id === "accuracy") {
         extra =
           '<div class="bars" data-inview aria-hidden="true">' +
           '<div class="bar"><span class="mono">Before</span><div class="bar__track"><div class="bar__fill" style="width:48%"></div></div><span class="bar__value">48%</span></div>' +

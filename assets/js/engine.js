@@ -541,7 +541,7 @@ ${profile.currently}`,
         pm: [
           "**He has shipped at scale.** Teachers Portal reached 1.3M+ monthly active users with a 25% retention lift, and UNICEF's Meena Game passed 10M+ downloads.",
           "**He builds what he specifies.** At Arena by PTC he built Claude API, LangGraph and MCP agent workflows that cut delivery turnaround by 30%, and designed the LLM evals that informed the roadmap.",
-          "**He ties product to revenue.** eCook's pay-as-you-go pipeline contributed to 48% annual revenue growth; a GTM framework at Arena lifted initial feature adoption by 20%."
+          "**He ties product to revenue.** At Arena by PTC he revamped Scribe, a feature with more than US $11M in annual recurring revenue; eCook's pay-as-you-go pipeline contributed to 48% annual revenue growth."
         ],
         fde: [
           "**He deploys AI in the field.** French to Mooré text-to-speech with offline-ready features reached 700,000 U-Reporters in Burkina Faso.",

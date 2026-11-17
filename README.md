@@ -29,7 +29,7 @@ images are in the repository, so the site works offline.
   It also takes voice input where the browser supports it.
 - **Command palette.** Press `⌘K` / `Ctrl K` to jump anywhere or hand a question to the assistant.
   `⌘J` / `Ctrl J` opens the assistant.
-- **Case study gallery.** 22 pieces of shipped work, filterable by category. Each card opens a
+- **Case study gallery.** 23 pieces of shipped work, filterable by category. Each card opens a
   drawer with the overview, what was done, the impact and the tools; arrow keys step through.
 - **Case studies** for Hospital Ops Copilot and ModelROI AI, with screenshots and eval tables.
 - **Dark and light themes**, with a circular reveal when you switch. Respects
@@ -45,7 +45,7 @@ Every word on the site lives in **`assets/js/data.js`**. Edit it, save, and refr
 | `metrics` | The headline numbers in the Impact section |
 | `experience` | Roles and bullets; each bullet lists the lenses it matters to |
 | `caseStudies` | Hospital Ops Copilot and ModelROI AI pages |
-| `shipped` | The 22-item case study gallery |
+| `shipped` | The 23-item case study gallery |
 | `technologies`, `capabilities` | The Toolkit section |
 | `education`, `awards`, `story`, `strengths` | The About section |
 

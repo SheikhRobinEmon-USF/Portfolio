@@ -102,6 +102,20 @@ window.PORTFOLIO = {
       "href": "#shipped"
     },
     {
+      "id": "scribe",
+      "value": 11,
+      "prefix": "$",
+      "suffix": "M+",
+      "label": "ARR on the Scribe feature I revamped",
+      "context": "Revamped Scribe at Arena by PTC, a feature carrying more than US $11 million in annual recurring revenue.",
+      "lens": [
+        "pm",
+        "ba",
+        "fde"
+      ],
+      "href": "#role-arena"
+    },
+    {
       "id": "reach",
       "value": 700,
       "suffix": "K",
@@ -322,8 +336,17 @@ window.PORTFOLIO = {
       "period": "June 2026 to August 2026",
       "start": "2026",
       "end": "2026",
-      "blurb": "AI product work inside a cloud PLM platform: agent workflows, a RAG prototype with evals, and discovery that reshaped onboarding and go-to-market.",
+      "blurb": "AI product work inside a cloud PLM platform: a revamp of the $11M+ ARR Scribe feature, agent workflows, a RAG prototype with evals, and discovery that reshaped onboarding and go-to-market.",
       "bullets": [
+        {
+          "title": "Scribe feature revamp",
+          "text": "Revamped Scribe, an Arena feature generating more than US $11M in annual recurring revenue.",
+          "lens": [
+            "pm",
+            "ba",
+            "fde"
+          ]
+        },
         {
           "title": "AI product operations",
           "text": "Built LLM agent workflows with the Claude API, LangGraph and MCP integrations alongside Atlassian Rovo and Microsoft Copilot to automate PRD, user story and documentation drafting, cutting delivery turnaround by 30%.",
@@ -1029,6 +1052,43 @@ window.PORTFOLIO = {
       "lens": [
         "fde",
         "pm"
+      ]
+    },
+    {
+      "id": "scribe",
+      "name": "Scribe Feature Revamp",
+      "headline": "Revamping an $11M+ ARR feature",
+      "org": "Arena by PTC",
+      "role": "Summer Intern, Product Management",
+      "period": "2026",
+      "category": [
+        "Product",
+        "Growth"
+      ],
+      "domain": [
+        "B2B SaaS",
+        "PLM",
+        "Feature revamp"
+      ],
+      "metric": {
+        "value": "$11M+",
+        "label": "annual recurring revenue"
+      },
+      "text": "Revamped Scribe, a feature in Arena's cloud PLM platform that carries more than US $11 million in annual recurring revenue.",
+      "did": [
+        "Revamped the Scribe feature in Arena's cloud PLM platform."
+      ],
+      "impact": [
+        "Worked on a feature responsible for more than US $11M in annual recurring revenue."
+      ],
+      "tools": [
+        "Product management",
+        "PLM",
+        "B2B SaaS"
+      ],
+      "lens": [
+        "pm",
+        "ba"
       ]
     },
     {
