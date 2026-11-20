@@ -48,7 +48,7 @@
   --raised: #0d0f14;
   --ink: #f1f1ee;
   --soft: #b4b7c0;
-  --mute: #7c808c;
+  --mute: #8f939f;
   --line: rgb(255 255 255 / 0.09);
   --line-strong: rgb(255 255 255 / 0.18);
   --glass: rgb(20 22 30 / 0.55);
@@ -71,7 +71,7 @@
   --raised: #fbfaf6;
   --ink: #0c0d10;
   --soft: #40434c;
-  --mute: #6c707b;
+  --mute: #5b5f69;
   --line: rgb(12 13 16 / 0.1);
   --line-strong: rgb(12 13 16 / 0.22);
   --glass: rgb(255 255 255 / 0.6);
@@ -1066,6 +1066,14 @@ kbd {
     margin-top: 2.5rem;
   }
 }
+.hero__grid > * {
+  min-width: 0;
+}
+@media (max-width: 400px) {
+  .seg__btn {
+    padding-inline: 0.5rem;
+  }
+}
 @media (min-width: 1024px) {
   .hero__grid {
     grid-template-columns: minmax(0, 34rem) 1fr;
@@ -1372,6 +1380,10 @@ kbd {
   opacity: var(--dim, 0);
   pointer-events: none;
 }
+.case__grid > *,
+.frame__url {
+  min-width: 0;
+}
 .case__grid {
   position: relative;
   display: grid;
@@ -1535,6 +1547,7 @@ kbd {
   color: var(--mute);
 }
 .pipeline__head span:last-child {
+  color: var(--soft);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1614,6 +1627,12 @@ kbd {
   color: var(--ink);
 }
 
+[data-theme="light"] .case__meta :first-child,
+[data-theme="light"] .cs-meta :first-child,
+[data-theme="light"] .cs-label::before {
+  color: color-mix(in oklab, var(--spot), #000 55%);
+}
+
 /* ---------- Gallery ---------- */
 
 .filters {
@@ -1661,7 +1680,11 @@ kbd {
 .filter small {
   font-family: var(--f-mono);
   font-size: 0.6875rem;
-  opacity: 0.6;
+  color: var(--mute);
+}
+.filter[aria-selected="true"] small {
+  color: inherit;
+  opacity: 0.75;
 }
 .gallery {
   display: grid;
@@ -3365,6 +3388,7 @@ kbd {
   color: var(--mute);
 }
 .palette__item {
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -3619,6 +3643,7 @@ kbd {
   gap: 0.25rem;
 }
 .chat__log {
+  position: relative;
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -3921,6 +3946,37 @@ kbd {
 }
 .mic[hidden] {
   display: none;
+}
+
+/* ---------- Page toast ---------- */
+
+.page-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 95;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition:
+    opacity 0.3s var(--ease),
+    transform 0.3s var(--ease);
+}
+.page-toast.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.page-toast span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  box-shadow: var(--shadow);
 }
 
 /* ---------- Not found ---------- */

@@ -31,7 +31,8 @@ images are in the repository, so the site works offline.
   `⌘J` / `Ctrl J` opens the assistant.
 - **Case study gallery.** 23 pieces of shipped work, filterable by category. Each card opens a
   drawer with the overview, what was done, the impact and the tools; arrow keys step through.
-- **Case studies** for Hospital Ops Copilot and ModelROI AI, with screenshots and eval tables.
+- **Case studies** for PayLineage (with a link to its live demo), Hospital Ops Copilot and ModelROI AI, with
+  screenshots and eval tables.
 - **Dark and light themes**, with a circular reveal when you switch. Respects
   `prefers-reduced-motion`, works with a keyboard, and lays out for phones.
 
@@ -44,7 +45,7 @@ Every word on the site lives in **`assets/js/data.js`**. Edit it, save, and refr
 | `profile` | Name, links, location, summaries for each lens, organizations |
 | `metrics` | The headline numbers in the Impact section |
 | `experience` | Roles and bullets; each bullet lists the lenses it matters to |
-| `caseStudies` | Hospital Ops Copilot and ModelROI AI pages |
+| `caseStudies` | PayLineage, Hospital Ops Copilot and ModelROI AI pages |
 | `shipped` | The 23-item case study gallery |
 | `technologies`, `capabilities` | The Toolkit section |
 | `education`, `awards`, `story`, `strengths` | The About section |
@@ -55,6 +56,7 @@ Images go in `assets/img/`. Screenshots for the case studies are in `assets/img/
 
 ```
 index.html                     home page
+work/paylineage.html           case study
 work/hospital-ops-copilot.html case study
 work/modelroi-ai.html          case study
 404.html                       not-found page for GitHub Pages

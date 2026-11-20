@@ -94,9 +94,9 @@
       </div>
     </footer>
 
-    <div class="overlay" id="case-drawer" aria-hidden="true">
+    <div class="overlay" id="case-drawer" inert>
       <div class="overlay__scrim"></div>
-      <aside class="drawer glass-strong" role="dialog" aria-modal="true" aria-labelledby="case-title" data-lenis-prevent>
+      <div class="drawer glass-strong" role="dialog" aria-modal="true" aria-labelledby="case-title">
         <div class="drawer__head">
           <p class="mono drawer__count"></p>
           <button type="button" class="icon-btn icon-btn--ring drawer__close" aria-label="Close case study"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
@@ -106,32 +106,32 @@
           <button type="button" data-step="-1"><svg class="icon" aria-hidden="true"><use href="#i-arrow-left"/></svg><span><span class="mono">Previous</span><b></b></span></button>
           <button type="button" data-step="1"><span><span class="mono">Next</span><b></b></span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>
         </div>
-      </aside>
+      </div>
     </div>
 
-    <div class="overlay palette" id="palette" aria-hidden="true">
+    <div class="overlay palette" id="palette" inert>
       <div class="overlay__scrim"></div>
       <div class="palette__box glass-strong" role="dialog" aria-label="Command palette">
         <div class="palette__input">
           <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
-          <input type="text" placeholder="Search, jump, or ask a question…" aria-label="Search" autocomplete="off" spellcheck="false" />
+          <input type="text" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" placeholder="Search, jump, or ask a question…" aria-label="Search the portfolio" autocomplete="off" spellcheck="false" />
           <kbd>esc</kbd>
         </div>
-        <div class="palette__list" role="listbox"></div>
+        <div class="palette__list" id="palette-list" role="listbox" aria-label="Results"></div>
         <div class="palette__foot"><span>↑↓ navigate · ↵ select</span><span>Type a question to ask the assistant</span></div>
       </div>
     </div>
 
-    <div class="fab-wrap">
+    <aside class="fab-wrap" aria-label="Portfolio assistant">
       <div class="nudge glass-strong">
         <button type="button" class="nudge__x" aria-label="Dismiss"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
         <p>Short on time? Ask me about Robin's work. I answer from this site and show my sources.</p>
-        <button type="button" class="nudge__go"></button>
+        <button type="button" class="nudge__go">Give me the 30-second version</button>
       </div>
       <button type="button" class="fab" id="assistant-fab" aria-label="Open the portfolio assistant"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg></button>
-    </div>
+    </aside>
 
-    <aside class="chat glass-strong" id="assistant" role="dialog" aria-label="Portfolio assistant" aria-hidden="true">
+    <div class="chat glass-strong" id="assistant" role="dialog" aria-label="Portfolio assistant chat" inert>
       <div class="chat__head">
         <div class="chat__id">
           <span class="avatar"><svg class="icon" aria-hidden="true"><use href="#i-sparkles"/></svg></span>
@@ -150,7 +150,7 @@
           <button type="submit" class="send" aria-label="Send" disabled><svg class="icon" aria-hidden="true"><use href="#i-arrow-up"/></svg></button>
         </div>
       </form>
-    </aside>
+    </div>
 
     <div class="grain" aria-hidden="true"></div>
     <noscript><p style="position:fixed;inset:auto 1rem 1rem;z-index:99;padding:1rem;border-radius:1rem;background:#0d0f14;color:#f1f1ee;font-family:sans-serif">This portfolio renders its sections with JavaScript. Please enable it to see the full site.</p></noscript>

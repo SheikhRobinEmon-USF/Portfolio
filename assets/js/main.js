@@ -467,8 +467,8 @@
 
     var grid = $(".bento", section);
     function card(m, i) {
-      // 1 large (2x2) + 4 wide (2x1) + 4 single cards fill four rows of four with no gaps.
-      var big = m.id === "mau", wide = ["accuracy", "scribe", "hospitals", "records"].indexOf(m.id) !== -1;
+      // 1 large (2x2) + 3 wide (2x1) + 6 single cards fill four rows of four with no gaps.
+      var big = m.id === "mau", wide = ["accuracy", "scribe", "hospitals"].indexOf(m.id) !== -1;
       var extra = "";
       if (big) {
         extra =
@@ -528,9 +528,10 @@
         '<p class="case__tagline serif">' + esc(p.tagline) + '</p><p class="case__summary">' + esc(p.summary) + "</p>" +
         '<dl class="facts">' + facts + "</dl>" +
         '<div class="case__ctas"><a class="btn btn--primary" href="' + workUrl(p.slug) + '">Read the case study ' + icon("arrow-right", "i-right") + "</a>" +
+        (p.demo ? '<a class="btn btn--glass" href="' + esc(p.demo) + '" target="_blank" rel="noopener noreferrer">Live demo ' + icon("arrow-up-right", "c-mute") + "</a>" : "") +
         (p.repo ? '<a class="btn btn--glass" href="' + esc(p.repo) + '" target="_blank" rel="noopener noreferrer">' + icon("github") + " Source " + icon("arrow-up-right", "c-mute") + "</a>" : "") +
         "</div></div>" +
-        '<div class="case__visual">' + (p.cover ? frameHTML(p.cover, "localhost:3000 · " + p.name) : "") + '<div class="chips">' + chips + "</div></div>" +
+        '<div class="case__visual">' + (p.cover ? frameHTML(p.cover, p.url || "localhost:3000 · " + p.name) : "") + '<div class="chips">' + chips + "</div></div>" +
         '</div><div class="case__dim"></div></article></div>';
     }).join("");
 
@@ -678,6 +679,8 @@
       var fresh = tmp.firstChild;
       $$("[data-reveal]", fresh).forEach(function (x) { x.classList.add("is-in"); });
       art.replaceWith(fresh);
+      var again = fresh.querySelector("[data-more]");
+      if (again) again.focus({ preventScroll: true });
     });
     render();
     App.onLens(render);
@@ -714,24 +717,42 @@
     }).join("") + "</div>";
 
     var box = $(".explorer", section);
+    var groups = [];
+    // Tabs are built once per mode and lens; picking a tab only updates the
+    // selection and the panel, so keyboard focus stays where it is.
     function render() {
-      var groups = byLens(mode === "technologies" ? D.technologies : D.capabilities, App.lens);
-      var active = groups.filter(function (g) { return g.id === picked; })[0] || groups[0];
+      groups = byLens(mode === "technologies" ? D.technologies : D.capabilities, App.lens);
+      if (!groups.some(function (g) { return g.id === picked; })) picked = groups[0].id;
       box.innerHTML =
-        '<div class="tabs" role="tablist" aria-orientation="vertical" aria-label="' + mode + '">' + groups.map(function (g, i) {
-          return '<button type="button" class="tab" role="tab" data-group="' + g.id + '" aria-selected="' + (g.id === active.id) + '">' +
+        '<div class="tabs" role="tablist" aria-orientation="vertical" aria-label="' + (mode === "technologies" ? "Technologies" : "Capabilities") + '">' + groups.map(function (g, i) {
+          var on = g.id === picked;
+          return '<button type="button" class="tab" role="tab" id="skill-tab-' + g.id + '" aria-controls="skill-panel" data-group="' + g.id + '" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '">' +
             '<span class="tab__label"><span class="mono">' + pad2(i + 1) + '</span><span class="tab__name display">' + esc(g.label) + "</span></span>" +
             '<span class="tab__count">' + g.items.length + "</span></button>";
         }).join("") + "</div>" +
-        '<div class="panel glass" role="tabpanel"><div class="panel__head mono"><span>' + esc(active.label) + "</span><span>" + active.items.length + " items</span></div>" +
+        '<div class="panel glass" role="tabpanel" id="skill-panel"></div>';
+      paintPanel();
+    }
+    function paintPanel() {
+      var active = groups.filter(function (g) { return g.id === picked; })[0];
+      var panel = $("#skill-panel", box);
+      panel.setAttribute("aria-labelledby", "skill-tab-" + active.id);
+      panel.innerHTML = '<div class="panel__head mono"><span>' + esc(active.label) + "</span><span>" + active.items.length + " items</span></div>" +
         '<ul class="skills">' + active.items.map(function (s, i) {
           return '<li style="--i:' + i + '"><button type="button" class="skill" data-skill="' + esc(s) + '" title="Ask where Robin has used ' + esc(s) + '">' + esc(s) + "</button></li>";
-        }).join("") + '</ul><p class="note">Select any skill to ask the assistant where it was used.</p></div>';
+        }).join("") + '</ul><p class="note">Select any skill to ask the assistant where it was used.</p>';
     }
-    function pick(id) {
-      if (id === picked) return;
-      picked = id;
-      render();
+    function pick(id, focus) {
+      if (id !== picked) {
+        picked = id;
+        $$(".tab", box).forEach(function (t) {
+          var on = t.getAttribute("data-group") === id;
+          t.setAttribute("aria-selected", String(on));
+          t.tabIndex = on ? 0 : -1;
+        });
+        paintPanel();
+      }
+      if (focus) $("#skill-tab-" + id, box).focus();
     }
     box.addEventListener("click", function (e) {
       var t = e.target.closest("[data-group]");
@@ -742,6 +763,15 @@
     box.addEventListener("mouseover", function (e) {
       var t = e.target.closest("[data-group]");
       if (t && finePointer.matches) pick(t.getAttribute("data-group"));
+    });
+    // Arrow keys, Home and End move between tabs, as screen reader users expect.
+    box.addEventListener("keydown", function (e) {
+      if (!e.target.closest(".tab")) return;
+      var i = groups.findIndex(function (g) { return g.id === picked; });
+      var next = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: groups.length - 1 }[e.key];
+      if (next === undefined) return;
+      e.preventDefault();
+      pick(groups[(next + groups.length) % groups.length].id, true);
     });
     modeBox.addEventListener("click", function (e) {
       var b = e.target.closest("[data-mode]");
@@ -796,6 +826,22 @@
   /* ------------------------------------------------------------------ */
   /* Home: contact                                                        */
   /* ------------------------------------------------------------------ */
+
+  /* A short confirmation at the bottom of the screen, announced to screen readers. */
+  var toastTimer = null;
+  App.toast = function (text) {
+    var t = $(".page-toast");
+    if (!t) {
+      t = document.createElement("div");
+      t.className = "page-toast";
+      t.setAttribute("role", "status");
+      document.body.appendChild(t);
+    }
+    t.innerHTML = "<span>" + icon("check") + esc(text) + "</span>";
+    t.classList.add("is-on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("is-on"); }, 2200);
+  };
 
   App.copyEmail = function (done) {
     var email = D.profile.email;
@@ -871,7 +917,7 @@
       if (!wasOpen) {
         opener = document.activeElement;
         root.classList.add("is-open");
-        root.setAttribute("aria-hidden", "false");
+        root.inert = false;
         document.body.classList.add("is-locked");
         if (App.closePalette) App.closePalette();
         setTimeout(function () { $(".drawer__close", root).focus({ preventScroll: true }); }, 50);
@@ -880,7 +926,7 @@
     function close() {
       if (!root.classList.contains("is-open")) return;
       root.classList.remove("is-open");
-      root.setAttribute("aria-hidden", "true");
+      root.inert = true;
       document.body.classList.remove("is-locked");
       if (opener && opener.focus) opener.focus({ preventScroll: true });
     }
@@ -944,7 +990,7 @@
     });
     items.push(
       { group: "Actions", label: "Switch theme", icon: "sun", keys: "toggle theme dark light mode", run: function () { App.toggleTheme(); } },
-      { group: "Actions", label: "Copy email", hint: D.profile.email, icon: "copy", keys: "copy email address contact", run: function () { App.copyEmail(); } },
+      { group: "Actions", label: "Copy email", hint: D.profile.email, icon: "copy", keys: "copy email address contact", run: function () { App.copyEmail(function () { App.toast("Email copied"); }); } },
       { group: "Actions", label: "Open LinkedIn", icon: "linkedin", keys: "open linkedin profile", run: function () { window.open(D.profile.links.linkedin, "_blank", "noopener"); } },
       { group: "Actions", label: "Open GitHub", icon: "github", keys: "open github profile source code", run: function () { window.open(D.profile.links.github, "_blank", "noopener"); } },
       { group: "Actions", label: "Ask the assistant for a summary", icon: "sparkles", keys: "ask ai assistant chat summary", run: function () { if (App.ask) App.ask("Give me the 30-second version of Robin."); } }
@@ -962,15 +1008,22 @@
         visible.push({ group: "Assistant", label: "Ask: " + raw, hint: "AI", icon: "sparkles", run: function () { App.ask(raw); } });
       }
       active = clamp(active, 0, Math.max(0, visible.length - 1));
-      if (!visible.length) { list.innerHTML = '<p class="palette__empty">Nothing matches that.</p>'; return; }
+      if (!visible.length) {
+        list.innerHTML = '<p class="palette__empty" role="presentation">Nothing matches that.</p>';
+        input.removeAttribute("aria-activedescendant");
+        return;
+      }
+      // Combobox pattern: focus stays in the input, and the highlighted option is
+      // announced through aria-activedescendant.
       var html = "", group = null;
       visible.forEach(function (it, i) {
-        if (it.group !== group) { group = it.group; html += '<p class="palette__group mono">' + esc(group) + "</p>"; }
-        html += '<button type="button" class="palette__item' + (i === active ? " is-active" : "") + '" data-i="' + i + '" role="option" aria-selected="' + (i === active) + '">' +
+        if (it.group !== group) { group = it.group; html += '<p class="palette__group mono" role="presentation">' + esc(group) + "</p>"; }
+        html += '<div class="palette__item' + (i === active ? " is-active" : "") + '" id="palette-opt-' + i + '" data-i="' + i + '" role="option" aria-selected="' + (i === active) + '">' +
           '<span class="palette__icon">' + icon(it.icon) + '</span><span class="palette__text">' + esc(it.label) + "</span>" +
-          (it.hint ? '<span class="palette__hint">' + esc(it.hint) + "</span>" : "") + "</button>";
+          (it.hint ? '<span class="palette__hint">' + esc(it.hint) + "</span>" : "") + "</div>";
       });
       list.innerHTML = html;
+      input.setAttribute("aria-activedescendant", "palette-opt-" + active);
     }
     function setActive(i) {
       active = i;
@@ -980,6 +1033,7 @@
         b.setAttribute("aria-selected", String(on));
         if (on) b.scrollIntoView({ block: "nearest" });
       });
+      input.setAttribute("aria-activedescendant", "palette-opt-" + i);
     }
     function choose(i) {
       var it = visible[i];
@@ -990,7 +1044,7 @@
 
     App.openPalette = function () {
       root.classList.add("is-open");
-      root.setAttribute("aria-hidden", "false");
+      root.inert = false;
       document.body.classList.add("is-locked");
       input.value = "";
       active = 0;
@@ -1000,7 +1054,7 @@
     function close() {
       if (!root.classList.contains("is-open")) return;
       root.classList.remove("is-open");
-      root.setAttribute("aria-hidden", "true");
+      root.inert = true;
       if (!App.caseOpen || !App.caseOpen()) document.body.classList.remove("is-locked");
     }
     App.closePalette = close;
@@ -1054,7 +1108,7 @@
     var next = D.caseStudies[(idx + 1) % D.caseStudies.length];
     var main = $("#main");
     main.style.setProperty("--spot", ACCENT[p.accent]);
-    function label(n, text) { return '<p class="cs-label mono" data-index="' + n + '"><span>' + esc(text) + "</span></p>"; }
+    function label(n, text) { return '<h2 class="cs-label mono" data-index="' + n + '"><span>' + esc(text) + "</span></h2>"; }
     var n = 0;
     function idxLabel(text) { n++; return label(pad2(n), text); }
 
@@ -1065,11 +1119,12 @@
       '<h1 class="cs-title display">' + esc(p.name) + "</h1></div>" +
       '<p class="cs-tagline serif" data-reveal style="--delay:.1s">' + esc(p.tagline) + "</p>" +
       '<div class="cs-ctas" data-reveal style="--delay:.16s">' +
-      (p.repo ? '<a class="btn btn--primary btn--lg" href="' + esc(p.repo) + '" target="_blank" rel="noopener noreferrer">' + icon("github") + " View the source " + icon("arrow-up-right") + "</a>" : "") +
+      (p.demo ? '<a class="btn btn--primary btn--lg" href="' + esc(p.demo) + '" target="_blank" rel="noopener noreferrer">Open the live demo ' + icon("arrow-up-right") + "</a>" : "") +
+      (p.repo ? '<a class="btn ' + (p.demo ? "btn--glass" : "btn--primary") + ' btn--lg" href="' + esc(p.repo) + '" target="_blank" rel="noopener noreferrer">' + icon("github") + " View the source " + icon("arrow-up-right") + "</a>" : "") +
       '<a class="btn btn--glass btn--lg" href="#how">How it is built</a></div></header>';
 
     if (p.cover) {
-      html += '<div class="wrap cs-cover" data-reveal>' + frameHTML(p.cover, "localhost:3000 · " + p.name, true) +
+      html += '<div class="wrap cs-cover" data-reveal>' + frameHTML(p.cover, p.url || "localhost:3000 · " + p.name, true) +
         (p.screenshotNote ? '<p class="note">' + esc(p.screenshotNote) + "</p>" : "") + "</div>";
     }
     html += '<div class="wrap"><dl class="cs-facts" data-reveal>' + p.facts.map(function (f) {
@@ -1090,14 +1145,14 @@
     }).join("") + "</div></section>";
 
     html += '<section id="how" class="wrap" style="padding-bottom:6rem;scroll-margin-top:7rem"><div class="split"><div data-reveal>' + idxLabel("Why it is built this way") +
-      '<h2 class="h2 display" style="font-size:clamp(2rem,4vw,3.5rem)">Decisions, <span class="serif gradient">not defaults</span></h2></div>' +
+      '<p class="h2 display" style="font-size:clamp(2rem,4vw,3.5rem)">Decisions, <span class="serif gradient">not defaults</span></p></div>' +
       '<ul class="principles">' + p.principles.map(function (x, i) {
         return '<li data-reveal style="--delay:' + i * 0.05 + 's"><h3 class="display">' + esc(x.concern) + "</h3><p>" + esc(x.approach) + "</p></li>";
       }).join("") + "</ul></div></section>";
 
     if (p.evals) {
       html += '<section class="wrap" style="padding-bottom:6rem"><div data-reveal>' + idxLabel("Evaluation") +
-        '<h2 class="h2 display" style="font-size:clamp(2rem,4vw,3.5rem);max-width:48rem">Measured before it was <span class="serif gradient">trusted</span></h2></div>' +
+        '<p class="h2 display" style="font-size:clamp(2rem,4vw,3.5rem);max-width:48rem">Measured before it was <span class="serif gradient">trusted</span></p></div>' +
         '<div class="evals">' + p.evals.map(evalTable).join("") + "</div></section>";
     }
 

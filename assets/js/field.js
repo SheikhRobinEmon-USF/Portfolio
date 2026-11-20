@@ -315,6 +315,15 @@
 
     container.appendChild(canvas);
 
+    // Phones may reclaim the GPU in background tabs. Hide the canvas cleanly and
+    // stop drawing; the page keeps its colour glows underneath.
+    var lost = false;
+    canvas.addEventListener("webglcontextlost", function (e) {
+      e.preventDefault();
+      lost = true;
+      canvas.style.display = "none";
+    });
+
     var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     var state = { anchors: [], progress: 0, spin: 0, mx: 0, my: 0, tmx: 0, tmy: 0, opacity: 0, ready: false, solid: 0, visible: true };
     var dpr = 1, w = 1, h = 1;
@@ -367,7 +376,7 @@
 
     function frame(now) {
       requestAnimationFrame(frame);
-      if (!state.visible) { last = now; return; }
+      if (!state.visible || lost) { last = now; return; }
       var dt = Math.min((now - last) / 1000, 0.05);
       last = now;
       var calm = reduced.matches;

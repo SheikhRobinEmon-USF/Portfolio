@@ -307,7 +307,7 @@
     gaming: ["game", "gaming"],
     payment: ["payment", "transaction", "fraud"],
     payments: ["payment", "transaction", "fraud"],
-    fintech: ["payment", "transaction", "payg", "fintech"],
+    fintech: ["payment", "transaction", "payg", "fintech", "paylineage", "payable", "beneficiary", "fraud"],
     edtech: ["teacher", "edtech", "education"],
     ecommerce: ["commerce", "spark"],
     intern: ["intern", "arena", "ptc"],
@@ -545,7 +545,7 @@ ${profile.currently}`,
         ],
         fde: [
           "**He deploys AI in the field.** French to Mooré text-to-speech with offline-ready features reached 700,000 U-Reporters in Burkina Faso.",
-          "**He measures before he ships.** Hospital Ops Copilot was evaluated across models for tool selection, accuracy, grounding and latency; his hospital RAG prototype reached 90% answer accuracy in LLM evals.",
+          "**He measures before he ships.** PayLineage allowed zero unauthorized payments across 54 attacks on a frozen holdout, even with a fully manipulated model; Hospital Ops Copilot was evaluated across models for tool selection, accuracy, grounding and latency.",
           "**He moves real numbers with models.** CNN ad verification went from 48% to 98% detection accuracy, and predictive bidding cut ad costs by 34%."
         ],
         ba: [
@@ -592,7 +592,45 @@ ${byLens[lens].map((b) => `- ${b}`).join("\n")}`,
         ]
       };
     }
-    if (/\b(where|location|based|live|city|relocat|remote|on-?site|bay area|california|florida|tampa)\b/.test(l) && !/\bwhere (has|did|does|is .* used|was)\b/.test(l)) {
+    if (/\b(live demo|demo|try (it|them)|play with|hosted|deployed|link to (the )?app)\b/.test(l)) {
+      const live = caseStudies.filter((c) => c.demo);
+      if (live.length) {
+        return {
+          ...base,
+          text: `Yes. ${live.map((c) => `**${c.name}** has a live demo that runs in your browser with nothing to install`).join("; ")}. The other projects run locally from their GitHub repositories.`,
+          sources: live.map((c) => ({ label: c.name, href: `/work/${c.slug}` })),
+          actions: live.map((c) => ({ type: "open", href: c.demo, label: `Open the ${c.name} demo` })),
+          followups: ["How does PayLineage stop a changed bank account?", "What were the PayLineage eval results?", "Show me his open-source projects"]
+        };
+      }
+    }
+    if (/\bwhere (did|has|does) (he|robin) (work|worked)\b|\b(which|what) (companies|employers|organi[sz]ations)\b|\b(work history|employment history|past jobs|previous jobs)\b/.test(l)) {
+      return {
+        ...base,
+        text: `Robin has worked at:\n\n${experience.map((r) => `- **${r.company}**, ${r.role}. ${r.place}, ${r.period}.`).join("\n")}`,
+        sources: experience.map((r) => ({ label: r.company, href: `/#role-${r.id}` })).slice(0, 4),
+        actions: [{ type: "scroll", target: "#experience", label: "See experience" }],
+        followups: ["What did he do at Arena by PTC?", "Tell me about the hospital research", "Why should we hire Robin?"]
+      };
+    }
+    if (/\b(fintech|financial technology|payments? (work|experience|projects?)|accounts payable)\b/.test(l)) {
+      const pl = caseStudies.find((c) => c.slug === "paylineage");
+      const pay = shipped.filter((x) => ["jeeto", "ecook"].indexOf(x.id) !== -1);
+      const lines = [];
+      if (pl) lines.push(`- **${pl.name}.** ${pl.summary} On a 96-scenario holdout it allowed zero unauthorized payments across 54 attacks.`);
+      pay.forEach((x) => lines.push(`- **${x.name} (${x.org}).** ${x.text} ${x.impact.join(" ")}`));
+      return {
+        ...base,
+        text: `Robin's fintech work spans AI payment security and consumer payments:\n\n${lines.join("\n")}`,
+        sources: [
+          ...(pl ? [{ label: pl.name, href: `/work/${pl.slug}` }] : []),
+          ...pay.map((x) => ({ label: x.name, href: `case:${x.id}` }))
+        ],
+        actions: pl ? [{ type: "route", href: `/work/${pl.slug}`, label: "Open PayLineage" }, ...(pl.demo ? [{ type: "open", href: pl.demo, label: "Try the live demo" }] : [])] : [],
+        followups: ["How does PayLineage stop a changed bank account?", "What were the PayLineage eval results?", "Tell me about the eCook pipeline"]
+      };
+    }
+    if (/\b(where|location|based|live|city|relocat\w*|remote|on-?site|bay area|california|florida|tampa)\b/.test(l) && !/\blive (demo|app|site)\b/.test(l) && !/\bwhere\b.*\b(use[sd]?|using|appl(y|ied)|buil[dt]|work(ed|s)?|job|stud(y|ied)|school|degree|graduat\w*|intern\w*)\b/.test(l)) {
       return {
         ...base,
         text: `Robin is based in **${profile.location}**. ${profile.relocation}.`,
@@ -616,6 +654,27 @@ Use the lens switch to re-order this site around the role you have in mind.`,
     const named = caseStudies.find(
       (c) => l.includes(c.name.toLowerCase()) || c.slug.startsWith("modelroi") && /model ?roi/.test(l)
     );
+    if (named && named.slug === "paylineage" && /\b(how|stop|prevent|block|catch|work|protect|bank|account|check)\w*/.test(l) && !/\b(limit|result|eval|score)\w*/.test(l)) {
+      return {
+        ...base,
+        text: `**${named.name}** treats every invoice and email value as untrusted, so a changed bank account cannot become payment authority. Six independent checks run in order:\n\n${named.principles.map((x) => `- **${x.concern}.** ${x.approach}`).join("\n")}\n\nOne Rego policy compiled to policy.wasm makes every allow, hold or deny decision, and the executor re-runs it before the single-use permit is spent.`,
+        sources: [{ label: named.name, href: `/work/${named.slug}` }],
+        actions: [
+          { type: "route", href: `/work/${named.slug}`, label: "Open the case study" },
+          ...(named.demo ? [{ type: "open", href: named.demo, label: "Try the live demo" }] : [])
+        ],
+        followups: ["What were the PayLineage eval results?", "Is there a live demo?", "What are the limits of this project?"]
+      };
+    }
+    if (named && named.evals && /\b(result|eval|benchmark|score|tested|measur|numbers)\w*/.test(l) && !/\b(which|best|top) (model|llm|retriever)\b/.test(l)) {
+      return {
+        ...base,
+        text: `**${named.name}: evaluation.**\n\n${named.evals.map((e) => `- **${e.title}.** ${e.note} ${e.rows.map((r) => `${r[0]}: ${r.slice(1).join(" / ")}`).join("; ")}.`).join("\n")}`,
+        sources: [{ label: named.name, href: `/work/${named.slug}` }],
+        actions: [{ type: "route", href: `/work/${named.slug}`, label: "See the full tables" }],
+        followups: ["What are the limits of this project?", "Is there a live demo?", "Show me his open-source projects"]
+      };
+    }
     if (named && /\b(tell me|what is|what's|explain|describe|overview|about|summar)\b/.test(l) && !/\b(limit|eval|rank|grade|hallucinat|built|stack|model scored)\w*/.test(l)) {
       return {
         ...base,
@@ -629,11 +688,11 @@ ${named.features.slice(0, 3).map((f) => `- **${f.title}.** ${f.text}`).join("\n"
           { type: "route", href: `/work/${named.slug}`, label: "Open the case study" },
           ...named.repo ? [{ type: "open", href: named.repo, label: "View on GitHub" }] : []
         ],
-        followups: named.evals ? ["Which model scored best in the evals?", "How is the copilot kept from hallucinating?", "What are the limits of this project?"] : ["How does ModelROI rank models?", "How are answers graded?", "What are the limits of this project?"]
+        followups: named.slug === "paylineage" ? ["How does PayLineage stop a changed bank account?", "What were the PayLineage eval results?", "Is there a live demo?"] : named.slug === "hospital-ops-copilot" ? ["Which model scored best in the evals?", "How is the copilot kept from hallucinating?", "What are the limits of this project?"] : ["How does ModelROI rank models?", "How are answers graded?", "What are the limits of this project?"]
       };
     }
     if (/\b(evals?|evaluat\w*|benchmark\w*|scored?|accura\w*)\b/.test(l) && /\b(which|best|top|winning|what) (model|llm|retriever|embedding)s?\b|\bmodels? (scored?|won|performed|did best)\b/.test(l)) {
-      const hoc = caseStudies.find((c) => c.evals);
+      const hoc = caseStudies.find((c) => c.slug === "hospital-ops-copilot") || caseStudies.find((c) => c.evals);
       const lines = ((_a = hoc.evals) != null ? _a : []).map((e) => {
         var _a2;
         const best2 = e.rows[(_a2 = e.highlight) != null ? _a2 : 0];
@@ -796,6 +855,8 @@ ${rest.map((d) => `- **${d.title}.** ${body(d)}`).join("\n")}` : "");
   function suggestionsFor(section, pathname) {
     if (pathname.startsWith("/work/hospital"))
       return ["How is the copilot kept from hallucinating?", "Which model scored best in the evals?", "What are the limits of this project?"];
+    if (pathname.startsWith("/work/paylineage"))
+      return ["How does PayLineage stop a changed bank account?", "What were the PayLineage eval results?", "Is there a live demo?"];
     if (pathname.startsWith("/work/modelroi"))
       return ["How does ModelROI rank models?", "How are answers graded?", "What are the limits of this project?"];
     switch (section) {

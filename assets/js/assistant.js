@@ -116,14 +116,26 @@
     log.scrollTop = Math.min(question.offsetTop - 12, bottom);
   }
 
+  // The reply that is still streaming, if any. A new question completes it first,
+  // so two answers never type into the log at once.
+  var streaming = null;
+
   function send(raw) {
     var text = String(raw || "").trim();
     if (!text) return;
+    if (streaming) streaming(false);
     if (log.querySelector(".chat__welcome")) log.innerHTML = "";
     log.querySelectorAll(".followups").forEach(function (f) { f.remove(); });
     clearBtn.hidden = false;
 
-    var a = Engine.answer(text, App.lens);
+    // On a case study page, "this project" means the project on screen.
+    var query = text;
+    if (App.page === "case") {
+      var slug = document.body.getAttribute("data-slug");
+      var here = (window.PORTFOLIO.caseStudies || []).filter(function (c) { return c.slug === slug; })[0];
+      if (here) query = text.replace(/\b(this|the) (project|app|tool|system|case study)\b/gi, here.name);
+    }
+    var a = Engine.answer(query, App.lens);
     var id = ++count;
     actionsById[id] = a.actions;
 
@@ -144,23 +156,29 @@
 
     if (a.run) setTimeout(function () { perform(a.run); }, 350);
 
-    function finish() {
+    var timer = null;
+    // isLast is false when a newer question interrupts: the old reply is completed
+    // with its sources and actions, but without follow-up suggestions.
+    function finish(isLast) {
+      clearInterval(timer);
+      streaming = null;
       out.innerHTML = rich(a.text);
-      m.querySelector(".msg-bot__body").insertAdjacentHTML("beforeend", extras(id, a, true));
-      follow(q);
+      m.querySelector(".msg-bot__body").insertAdjacentHTML("beforeend", extras(id, a, isLast !== false));
+      if (isLast !== false) follow(q);
     }
-    if (reduced.matches) return finish();
+    if (reduced.matches) return finish(true);
 
     // Stream a few characters at a time, without cutting a bold marker in half.
     var n = 0;
     var stepSize = Math.max(3, Math.round(a.text.length / 110));
-    var timer = setInterval(function () {
+    streaming = finish;
+    timer = setInterval(function () {
       n = Math.min(a.text.length, n + stepSize);
       var shown = a.text.slice(0, n);
       if ((shown.match(/\*\*/g) || []).length % 2 === 1) shown += "**";
       out.innerHTML = rich(shown) + '<span class="caret"></span>';
       follow(q);
-      if (n >= a.text.length) { clearInterval(timer); finish(); }
+      if (n >= a.text.length) finish(true);
     }, 16);
   }
 
@@ -184,14 +202,14 @@
     dismissNudge();
     if (!log.children.length) welcome();
     panel.classList.add("is-open");
-    panel.setAttribute("aria-hidden", "false");
+    panel.inert = false;
     fab.classList.add("is-hidden");
     $$(".ask-toggle").forEach(function (b) { b.setAttribute("aria-expanded", "true"); });
     setTimeout(function () { field.focus({ preventScroll: true }); }, 250);
   }
   function close() {
     panel.classList.remove("is-open");
-    panel.setAttribute("aria-hidden", "true");
+    panel.inert = true;
     fab.classList.remove("is-hidden");
     $$(".ask-toggle").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
   }
@@ -208,7 +226,7 @@
   $$(".ask-toggle").forEach(function (b) { b.addEventListener("click", function () { isOpen() ? close() : open(); }); });
   $$("[data-ask]").forEach(function (b) { b.addEventListener("click", function () { App.ask(b.getAttribute("data-ask")); }); });
   panel.querySelector("[data-close]").addEventListener("click", close);
-  clearBtn.addEventListener("click", function () { log.innerHTML = ""; welcome(); });
+  clearBtn.addEventListener("click", function () { if (streaming) streaming(false); log.innerHTML = ""; welcome(); });
   document.addEventListener("keydown", function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") { e.preventDefault(); isOpen() ? close() : open(); }
     else if (e.key === "Escape" && isOpen() && !(App.caseOpen && App.caseOpen())) close();

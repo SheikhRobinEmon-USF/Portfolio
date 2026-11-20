@@ -152,6 +152,19 @@ window.PORTFOLIO = {
       "href": "#shipped"
     },
     {
+      "id": "paylineage",
+      "value": 54,
+      "suffix": " of 54",
+      "label": "payment attacks stopped",
+      "context": "PayLineage: zero unauthorized payments on a 96-scenario holdout, even with a fully manipulated model and deceived approvers.",
+      "lens": [
+        "fde",
+        "pm",
+        "ba"
+      ],
+      "href": "work/paylineage.html"
+    },
+    {
       "id": "hospitals",
       "value": 6264,
       "suffix": "",
@@ -283,7 +296,7 @@ window.PORTFOLIO = {
         },
         {
           "title": "AI engineering projects",
-          "text": "Built Hospital Ops Copilot and ModelROI AI as independent open-source projects, and co-develop Clearline, an agentic RAG assistant that classifies apparel into HTS codes.",
+          "text": "Built PayLineage, Hospital Ops Copilot and ModelROI AI as independent open-source projects, and co-develop Clearline, an agentic RAG assistant that classifies apparel into HTS codes.",
           "lens": [
             "fde"
           ]
@@ -552,6 +565,226 @@ window.PORTFOLIO = {
     }
   ],
   "caseStudies": [
+    {
+      "slug": "paylineage",
+      "name": "PayLineage",
+      "kind": "Independent open-source project",
+      "year": "2026",
+      "tagline": "No payment leaves until the record matches.",
+      "summary": "A fintech payment control layer that stops AI accounts payable agents from paying unverified or unauthorized beneficiaries. Invoice and email content can never become payment authority, even when the model is fully manipulated and a person clicks approve.",
+      "accent": "volt",
+      "repo": "https://github.com/SheikhRobinEmon-USF/Paylineage",
+      "demo": "https://sheikhrobinemon-usf.github.io/Paylineage/",
+      "url": "sheikhrobinemon-usf.github.io/Paylineage",
+      "cover": {
+        "src": "assets/img/projects/pl-payment-control.webp",
+        "alt": "PayLineage Payment Control workspace listing held, awaiting and denied agent payment proposals with their reason codes",
+        "caption": "Payment Control: what needs a person, why each payment was held or denied, and what is exposed"
+      },
+      "shots": [
+        {
+          "src": "assets/img/projects/pl-evidence-investigation.webp",
+          "alt": "Evidence Investigation linking each invoice field to its source line and exposing hidden text and a lookalike domain",
+          "caption": "Evidence Investigation: every field linked to its source line, with hidden text and lookalike domains exposed"
+        },
+        {
+          "src": "assets/img/projects/pl-approval-center.webp",
+          "alt": "Approval Center showing the exact canonical payment record and its SHA-256 digest before a passkey approval",
+          "caption": "Approval Center: a passkey signs the exact canonical record and its digest"
+        },
+        {
+          "src": "assets/img/projects/pl-attack-lab.webp",
+          "alt": "Attack Lab where a user builds an attack and the real policy.wasm decides in the browser",
+          "caption": "Attack Lab: build an attack and watch the real policy.wasm hold it in the browser"
+        },
+        {
+          "src": "assets/img/projects/pl-supplier-master.webp",
+          "alt": "Supplier Master with verified accounts, pending bank changes and separation of duties",
+          "caption": "Supplier Master: verified accounts, bank changes and separation of duties"
+        },
+        {
+          "src": "assets/img/projects/pl-agent-authority.webp",
+          "alt": "Agent Authority showing the agent's request signing key and versioned mandate",
+          "caption": "Agent Authority: RFC 9421 signing keys and versioned mandates"
+        },
+        {
+          "src": "assets/img/projects/pl-audit-trail.webp",
+          "alt": "Audit Trail recomputing and verifying the hash chain in the browser",
+          "caption": "Audit Trail: the hash chain recomputed and verified in the browser"
+        },
+        {
+          "src": "assets/img/projects/pl-payment-control-dark.webp",
+          "alt": "PayLineage Payment Control in dark mode",
+          "caption": "Full dark mode"
+        }
+      ],
+      "facts": [
+        {
+          "label": "Unauthorized payments",
+          "value": "0 of 54 attacks"
+        },
+        {
+          "label": "False holds",
+          "value": "0 of 18"
+        },
+        {
+          "label": "Authorization attacks refused",
+          "value": "17 of 17"
+        },
+        {
+          "label": "Policy decision, p95",
+          "value": "About 2 ms"
+        }
+      ],
+      "stack": [
+        "Python",
+        "FastAPI",
+        "OPA Rego",
+        "WebAssembly",
+        "PostgreSQL",
+        "WebAuthn passkeys",
+        "Ed25519",
+        "Next.js 16",
+        "React 19",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "Ollama",
+        "Hypothesis",
+        "Playwright",
+        "Docker"
+      ],
+      "problem": "Business email compromise caused about $3.05 billion in reported US losses in 2025 (FBI IC3): attackers change supplier bank details in emails and invoices. AI agents now read those invoices and pay them, and an agent that reads attacker content can be steered by it. PayLineage connects the whole B2B payment lifecycle so that no step trusts what the previous step could not prove.",
+      "features": [
+        {
+          "title": "Same policy everywhere",
+          "text": "One Rego policy compiled to policy.wasm and identified by SHA-256, evaluated by the Python backend and by the browser. 58 shared vectors give identical decisions in both."
+        },
+        {
+          "title": "Fail closed by construction",
+          "text": "Explicit deny and hold rules plus a positive allow gate that must prove every fact. Undefined results, timeouts, unknown values and a tampered module all deny. 24 planted Rego mutants are all caught."
+        },
+        {
+          "title": "Server-bound approvals",
+          "text": "WebAuthn passkeys sign a challenge derived from the RFC 8785 canonical record. Any material change, expiry, revocation or policy change voids the approval."
+        },
+        {
+          "title": "Signed agent identity",
+          "text": "Agents sign requests with HTTP Message Signatures (RFC 9421) and Content-Digest (RFC 9530). Mandates load from a trusted store, never from the request."
+        },
+        {
+          "title": "One permit, one execution",
+          "text": "Single-use, two-minute permits consumed with one conditional update, proven against PostgreSQL with 16 concurrent executions of the same permit."
+        },
+        {
+          "title": "Tamper-evident audit",
+          "text": "A hash chain with Ed25519 checkpoints held outside the database detects modified, deleted, reordered or truncated history, even if every hash is recomputed."
+        }
+      ],
+      "principles": [
+        {
+          "concern": "Field provenance",
+          "approach": "Where did this value come from? Email and invoice content starts untrusted, assigned before any model runs."
+        },
+        {
+          "concern": "Supplier master",
+          "approach": "Do the bank details match a verified record, with requester, verifier and steward as three different people?"
+        },
+        {
+          "concern": "Agent mandate",
+          "approach": "Is this agent allowed this operation, supplier and amount?"
+        },
+        {
+          "concern": "Payment policy",
+          "approach": "Do the rules allow it? One policy.wasm returns allow, hold or deny with reason codes."
+        },
+        {
+          "concern": "Passkey approval",
+          "approach": "Did an authorized person approve this exact record, bound to its canonical digest?"
+        },
+        {
+          "concern": "Execution integrity",
+          "approach": "Does execution match the approval, exactly once? The executor re-runs the policy and consumes the permit."
+        }
+      ],
+      "evals": [
+        {
+          "title": "Holdout scenarios",
+          "note": "96 generated scenarios with 54 attacks, on suppliers and dates never seen in development. The adversarial stub always outputs the attacker's preferred values, and deceived people clear every clearable hold and approve.",
+          "columns": [
+            "Metric",
+            "Adversarial model stub",
+            "Deterministic extractor"
+          ],
+          "rows": [
+            [
+              "Unauthorized payments",
+              "0",
+              "0"
+            ],
+            [
+              "Missed bank detail substitutions",
+              "0",
+              "0"
+            ],
+            [
+              "False holds on legitimate payments",
+              "0",
+              "0"
+            ],
+            [
+              "Scenarios behaving as specified",
+              "96 of 96",
+              "96 of 96"
+            ],
+            [
+              "Proposal to decision, p95",
+              "107 ms",
+              "109 ms"
+            ]
+          ],
+          "highlight": 0
+        },
+        {
+          "title": "Layer ablation",
+          "note": "Attack instances that would pay a non-legitimate record as checks are switched on, with the adversarial stub. Legitimate payments still paid: 18 of 18 at every step.",
+          "columns": [
+            "Checks enabled",
+            "Unauthorized payments",
+            "Legitimate paid"
+          ],
+          "rows": [
+            [
+              "None",
+              "54",
+              "18"
+            ],
+            [
+              "+ Field provenance",
+              "0",
+              "18"
+            ],
+            [
+              "+ Supplier master",
+              "0",
+              "18"
+            ],
+            [
+              "+ Agent mandate",
+              "0",
+              "18"
+            ],
+            [
+              "Full system",
+              "0",
+              "18"
+            ]
+          ],
+          "highlight": 4
+        }
+      ],
+      "limits": "Simulation only: rails, bank accounts and supplier verification are simulated, and every company, person and account is fictional. Scenarios come from 16 templates in one simulated organization. A forged registry entry can pass simulated onboarding, and a deceived analyst can clear a duplicate invoice hold. The adversarial stub models a fully manipulated model; it does not measure how a real model reacts.",
+      "screenshotNote": "Screenshots come from the public demo, which runs the real policy.wasm in your browser and replays recordings from the Python system."
+    },
     {
       "slug": "hospital-ops-copilot",
       "name": "Hospital Ops Copilot",
