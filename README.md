@@ -33,6 +33,9 @@ images are in the repository, so the site works offline.
   drawer with the overview, what was done, the impact and the tools; arrow keys step through.
 - **Case studies** for PayLineage (with a link to its live demo), Hospital Ops Copilot and ModelROI AI, with
   screenshots and eval tables.
+- **Private visit analytics.** A cookie-free tracker records page views, sources, scroll
+  depth and clicks into your own Firebase project. A dashboard at `/dashboard/` charts them, and
+  only your account can sign in to read it. See [ANALYTICS.md](ANALYTICS.md).
 - **Dark and light themes**, with a circular reveal when you switch. Respects
   `prefers-reduced-motion`, works with a keyboard, and lays out for phones.
 
@@ -60,12 +63,17 @@ work/paylineage.html           case study
 work/hospital-ops-copilot.html case study
 work/modelroi-ai.html          case study
 404.html                       not-found page for GitHub Pages
+dashboard/index.html           private analytics dashboard (see ANALYTICS.md)
 assets/css/styles.css          all styles and design tokens
 assets/js/data.js              all content
 assets/js/main.js              rendering, lens switch, theme, scroll effects, drawer, palette
 assets/js/field.js             WebGL particle field
 assets/js/engine.js            assistant answer engine (search and intent routing)
 assets/js/assistant.js         assistant chat panel
+assets/js/track.js             cookie-free visit tracker
+assets/js/analytics-config.js  Firebase settings for analytics (empty = off)
+assets/js/dashboard.js         analytics dashboard
+firebase/firestore.rules       Firestore security rules for the analytics data
 assets/fonts/                  Bricolage Grotesque, Geist, Geist Mono, Instrument Serif
 assets/img/                    portrait, project screenshots, icon, social preview
 ```

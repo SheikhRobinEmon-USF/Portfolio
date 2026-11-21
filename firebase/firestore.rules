@@ -1,0 +1,58 @@
+rules_version = '2';
+
+// Portfolio visit analytics.
+// Visitors may only CREATE small, well-formed visit records stamped with the server time.
+// Nobody can change or overwrite a record. Only the site owner's account can read or delete.
+//
+// Replace OWNER_UID with your user's UID (Firebase console > Authentication > Users),
+// or copy the filled-in version from the dashboard's setup panel.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner() {
+      return request.auth != null && request.auth.uid == 'OWNER_UID';
+    }
+
+    function str(d, k, n) {
+      return d[k] is string && d[k].size() <= n;
+    }
+
+    function common(d) {
+      return d.at == request.time
+        && d.k in ['view', 'more']
+        && str(d, 'v', 32) && str(d, 's', 32) && str(d, 'p', 32)
+        && str(d, 'path', 200);
+    }
+
+    function isView(d) {
+      return d.k == 'view'
+        && d.keys().hasOnly(['at', 'k', 'v', 's', 'p', 'path', 'title', 'ref', 'utm', 'dev', 'br', 'os', 'sw', 'lang', 'tz', 'nv'])
+        && str(d, 'title', 150) && str(d, 'ref', 300)
+        && d.utm is map && d.utm.size() <= 3
+        && str(d, 'dev', 20) && str(d, 'br', 30) && str(d, 'os', 30)
+        && d.sw is int && str(d, 'lang', 20) && str(d, 'tz', 60)
+        && d.nv is bool;
+    }
+
+    function isMore(d) {
+      return d.k == 'more'
+        && d.keys().hasOnly(['at', 'k', 'v', 's', 'p', 'path', 'ev', 'secs', 'dur', 'depth'])
+        && d.ev is list && d.ev.size() <= 60
+        && d.secs is list && d.secs.size() <= 20
+        && d.dur is int && d.dur >= 0 && d.dur <= 21600000
+        && d.depth is int && d.depth >= 0 && d.depth <= 100;
+    }
+
+    match /hits/{id} {
+      allow create: if common(request.resource.data)
+        && (isView(request.resource.data) || isMore(request.resource.data));
+      allow read, delete: if isOwner();
+      allow update: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

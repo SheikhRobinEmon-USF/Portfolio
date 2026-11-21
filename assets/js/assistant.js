@@ -123,6 +123,7 @@
   function send(raw) {
     var text = String(raw || "").trim();
     if (!text) return;
+    if (App.track) App.track("ask", text);
     if (streaming) streaming(false);
     if (log.querySelector(".chat__welcome")) log.innerHTML = "";
     log.querySelectorAll(".followups").forEach(function (f) { f.remove(); });
